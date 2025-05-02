@@ -16,6 +16,7 @@ import screenshot from 'screenshot-desktop';
 import { createRequire } from 'module';
 import axios from 'axios';
 import child_process from 'child_process';
+const require = createRequire(import.meta.url)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
