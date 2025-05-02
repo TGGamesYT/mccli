@@ -276,7 +276,6 @@ export async function getAccount() {
 
                 // Get the Minecraft Java Edition auth token
                 const result = await flow.getMinecraftJavaToken({ fetchProfile: true });
-                console.log('result: ${result}')
                 // Ensure the access token and profile are available
                 const acc = {
                     username: result.profile.name,
