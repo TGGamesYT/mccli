@@ -12,3 +12,6 @@ npm run start
 ```
 # Usage
 after running it, you can use the arrows to navigate through options, enter to select.
+
+# Info
+if you dont belive me / think this is some virus, you can read the [full code](https://github.com/TGGamesYT/mccli/blob/main/main.js)
