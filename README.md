@@ -15,3 +15,4 @@ after running it, you can use the arrows to navigate through options, enter to s
 
 # Info
 if you dont belive me / think this is some virus, you can read the [full code](https://github.com/TGGamesYT/mccli/blob/main/main.js)
+(the code is a mess and some parts written by chatgpt so uh..)
