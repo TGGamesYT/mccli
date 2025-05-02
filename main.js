@@ -92,19 +92,12 @@ async function stream(port, allowInteractions) {
       const sendLoop = async () => {
         while (running && ws.readyState === ws.OPEN) {
           try {
-            // Take a screenshot (Buffer) of the screen
             const img = await screenshot({ format: 'png' });
-  
-            // Crop the image buffer to Minecraft window using raw pixel manipulation
             const croppedImage = await cropImageBuffer(img, bounds.x, bounds.y, bounds.width, bounds.height);
-  
-            // Send the cropped image as JPEG to the client
             ws.send(croppedImage);
           } catch (e) {
             console.error('Capture error:', e.message);
           }
-  
-          // Sleep for ~100ms to simulate ~10fps
           await new Promise(r => setTimeout(r, 100));
         }
       };
@@ -156,16 +149,11 @@ async function stream(port, allowInteractions) {
       }
       await new Promise(r => setTimeout(r, 500));
     }
-  
     return null;
   }
-  
-  // Crop image buffer function
   const cropImageBuffer = (buffer, x, y, width, height) => {
     return new Promise((resolve, reject) => {
       const sharp = require('sharp');
-  
-      // Validate the crop dimensions and coordinates
       if (x < 0 || y < 0 || width <= 0 || height <= 0) {
         return reject(new Error('Invalid crop area dimensions.'));
       }
@@ -174,19 +162,15 @@ async function stream(port, allowInteractions) {
         .metadata()
         .then(metadata => {
           console.log('Image Metadata:', metadata);
-  
-          // Ensure the crop area is within image bounds
           if (x + width > metadata.width) {
             console.log(`Adjusted crop width: ${x + width} exceeds image width. Reducing width.`);
-            width = metadata.width - x; // Adjust width to fit the image width
+            width = metadata.width - x;
           }
   
           if (y + height > metadata.height) {
             console.log(`Adjusted crop height: ${y + height} exceeds image height. Reducing height.`);
-            height = metadata.height - y; // Adjust height to fit the image height
+            height = metadata.height - y;
           }
-  
-          // Proceed with cropping the image
           sharp(buffer)
             .extract({ left: x, top: y, width: width, height: height })
             .toBuffer()
@@ -209,12 +193,9 @@ async function stream(port, allowInteractions) {
  
   async function ensureInstancesDir() {
     try {
-        // Check if the directory exists, if not, create it
         if (!fs.existsSync(INSTANCES_DIR)) {
             await fs.promises.mkdir(INSTANCES_DIR, { recursive: true });
         }
-
-        // Check if the accounts file exists, if not, create it
         if (!fs.existsSync(ACCOUNTS_PATH)) {
             await fs.promises.writeFile(ACCOUNTS_PATH, JSON.stringify([]));
         }
@@ -271,13 +252,8 @@ export async function getAccount() {
                     name: 'username',
                     message: 'Enter any name to identify your Minecraft login session:'
                 });
-
-                // Initialize the Authflow for Minecraft Java Edition authentication
                 const flow = new Authflow(username, AUTH_CACHE);
-
-                // Get the Minecraft Java Edition auth token
                 const result = await flow.getMinecraftJavaToken({ fetchProfile: true });
-                // Ensure the access token and profile are available
                 const acc = {
                     username: result.profile.name,
                     uuid: result.profile.id,
@@ -294,8 +270,6 @@ export async function getAccount() {
 
                 accounts.push(acc);
                 await fs.writeJson(ACCOUNTS_FILE, accounts, { spaces: 2 });
-
-                // Return the account object with access token
                 return acc;
             } catch (err) {
                 console.error('Minecraft authentication failed:', err.message || err);
@@ -411,12 +385,10 @@ async function launchInstanceMenu() {
 
       const instancePath = path.join(INSTANCES_DIR, selected);
       const configPath = path.join(instancePath, 'instance.json');
-      
-      // Read and parse the JSON file
       let config = await fs.promises.readFile(configPath, 'utf8');
-      config = JSON.parse(config); // Parse the JSON content
+      config = JSON.parse(config);
 
-      const account = await getAccount(); // Make sure this function is defined
+      const account = await getAccount(); 
 
       const { doStream } = await inquirer.prompt({
           type: 'confirm',
@@ -437,8 +409,6 @@ async function launchInstanceMenu() {
           }]);
           stream(port, allowInteraction);
       }
-
-      // Initialize options for launching the instance
       const opts = {
           authorization: {
               access_token: account.access_token,
@@ -457,35 +427,23 @@ async function launchInstanceMenu() {
               min: '1G'
           }
       };
-
-      // Check if this instance uses a modloader (Fabric or Forge)
       const modloaderType = config.modloader || null;
 
       if (modloaderType) {
           console.log(`${modloaderType} mod loader detected, but this wasnt fully implemented yet.`);
-
-          // You can use your modloader download logic here for Fabric or Forge
           if (modloaderType === 'fabric') {
-              // Handle Fabric modloader (ensure the necessary files are in place)
               const fabricJsonPath = path.join(instancePath, 'versions', config.version, `${config.version}-fabric.json`);
               const fabricJson = JSON.parse(await fs.promises.readFile(fabricJsonPath, 'utf8'));
-
-              // Prepare Fabric libraries for classpath
               let classpath = [];
               fabricJson.libraries.forEach(library => {
                   if (library.url) {
                       classpath.push(path.join(instancePath, 'libraries', library.name.replace(':', path.sep) + '.jar'));
                   }
               });
-
-              // Add base Minecraft JAR to the classpath
               classpath.push(path.join(instancePath, 'versions', config.version, `${config.version}.jar`));
-
-              // Add classpath to opts (or another specific field if necessary)
               opts.classpath = classpath.join(path.delimiter);
 
           } else if (modloaderType === 'forge') {
-              // Handle Forge modloader logic here (similar to Fabric)
               const forgeJsonPath = path.join(instancePath, 'versions', config.version, `${config.version}-forge.json`);
               const forgeJson = JSON.parse(await fs.promises.readFile(forgeJsonPath, 'utf8'));
 
@@ -522,15 +480,9 @@ async function installModLoader(version, modLoader, instancePath) {
 
   try {
     const instanceJsonPath = path.join(instancePath, 'instance.json');
-    
-    // Read the instance.json file
     const config = await fs.promises.readFile(instanceJsonPath, 'utf8');
     const configJson = JSON.parse(config);
-
-    // Add the modloader information to instance.json
     configJson.modloader = modLoader;
-
-    // Save the updated JSON back to the file
     await fs.promises.writeFile(instanceJsonPath, JSON.stringify(configJson, null, 2));
   } catch (err) {
     console.error(`Error adding modloader to instance ${instancePath}:`, err);
@@ -576,7 +528,7 @@ async function installModLoader(version, modLoader, instancePath) {
       console.log('✅ Fabric installed.');
     } catch (err) {
       console.error('❌ Failed to install Fabric:', err.message);
-      return mainMenu(); // Return to main menu on failure
+      return mainMenu();
     }
 
   } else if (modLoader === 'Forge') {
@@ -621,7 +573,7 @@ async function installModLoader(version, modLoader, instancePath) {
       console.log('✅ Forge installed.');
     } catch (err) {
       console.error('❌ Failed to install Forge:', err.message);
-      return mainMenu(); // Return to main menu on failure
+      return mainMenu();
     }
   } else {
     console.log('🔹 No mod loader selected; using vanilla.');
