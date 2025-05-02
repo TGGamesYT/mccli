@@ -1,0 +1,24 @@
+{
+  "main": "main.js",
+  "name": "mccli",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "active-win": "^8.2.1",
+    "axios": "^1.9.0",
+    "child_process": "^1.0.2",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.3.0",
+    "inquirer": "^12.6.0",
+    "minecraft-launcher-core": "^3.18.2",
+    "prismarine-auth": "^2.7.0",
+    "screenshot-desktop": "^1.15.1",
+    "sharp": "^0.34.1",
+    "ws": "^8.18.1"
+  },
+  "type": "module"
+}
